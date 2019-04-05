@@ -1,0 +1,268 @@
+% arara: lualatex
+% arara: lualatex
+% arara: biber
+% arara: lualatex
+\documentclass[headings=standardclasses]{scrartcl}
+
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{physics}
+\usepackage[version=4]{mhchem}
+\usepackage{cancel}
+\usepackage{siunitx}
+\sisetup{per-mode = symbol-or-fraction}
+% \usepackage{fontspec}
+% \setmainfont{Linux Libertine O}
+\usepackage[bold-style=ISO]{unicode-math}
+% \setmainfont{XITS}
+% \setmathfont{XITS Math}
+\setmainfont{Libertinus Serif}
+\setmathfont{Libertinus Math}
+\usepackage{bbm}
+\usepackage[activate={true,nocompatibility}]{microtype}
+\usepackage{polyglossia}
+\setdefaultlanguage{english}
+\usepackage[english=british]{csquotes}
+
+\usepackage[useregional]{datetime2}
+\usepackage[shortlabels]{enumitem}
+
+\usepackage[
+    style=authoryear-comp,
+    dashed=false,
+    sorting=nyvt,
+    sortlocale=auto,
+    sortcites=true,
+    maxcitenames=3,
+    maxbibnames=100,
+    useprefix=false,
+    alldates=long,
+    language=british,
+    clearlang=true,
+    % giveninits=true,
+    doi=true,
+    url=false,
+    backref=true,
+    abbreviate=false,
+    backend=biber]{biblatex}
+\addglobalbib{/home/hugo/Documenten/Studie/studie.bib}
+
+\usepackage{booktabs}
+
+\usepackage{listings}
+\lstset{
+    language=R,
+    basicstyle=\footnotesize\ttfamily,
+    keywordstyle=\bfseries\color{green!40!black},
+    commentstyle=\itshape\color{purple!40!black},
+    identifierstyle=\color{blue},
+    stringstyle=\color{orange},
+    breaklines=true,
+}
+
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows, arrows.meta, patterns, shapes.geometric, positioning}
+
+\usepackage[%
+    bookmarks=true,
+    unicode=true,
+    pdfusetitle=true,
+    hidelinks
+]{hyperref}
+
+\title{\texorpdfstring{\vspace{-2cm}Nitrogen Cycling in a River-Aquifer system}{Nitrogen Cycling in a River-Aquifer system}}
+\author{Hugo van den Berg \and Max Lamberts \and Timon Smeets}
+\date{\DTMtoday\vspace{-0.5cm}}
+
+\renewcommand*{\RNfont}{\scshape}
+\newcommand*\mean[1]{\bar{#1}}
+
+% \DeclareMathOperator{\Div}{div}
+% \DeclareMathOperator{\Grad}{grad}
+% \DeclareMathOperator{\wellf}{W}
+
+\DeclareSIUnit\atmosphere{atm}
+\DeclareSIUnit\ppm{ppm}
+\DeclareSIUnit\year{yr}
+
+% \definecolor{soil}{rgb}{0.93,0.91,0.41}
+% \definecolor{clay}{rgb}{0.2,0.4,0}
+% \definecolor{water}{rgb}{0.6,0.8,1}
+
+% \makeatletter
+% \pgfdeclarepatternformonly[\hatchdistance,\hatchthickness]{flexible hatch}
+% {\pgfqpoint{0pt}{0pt}}
+% {\pgfqpoint{\hatchdistance}{\hatchdistance}}
+% {\pgfpoint{\hatchdistance-1pt}{\hatchdistance-1pt}}%
+% {
+%     \pgfsetcolor{\tikz@pattern@color}
+%     \pgfsetlinewidth{\hatchthickness}
+%     \pgfpathmoveto{\pgfqpoint{0pt}{0pt}}
+%     \pgfpathlineto{\pgfqpoint{\hatchdistance}{\hatchdistance}}
+%     \pgfusepath{stroke}
+% }
+% \makeatother
+
+\tikzset{
+    box/.style={
+        rectangle,
+        draw=black!50,
+        minimum size=2cm,
+        align=center
+    }
+}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+The aim of this project is to understand the role of organic matter
+mineralization in the removal of dissolved organics entering the groundwater
+from a contaminated river. Specifically, your task is to write a model that can
+predict the concentrations of DOM, \ce{O2}, \ce{NO3}, \ce{NH3} and \ce{N2} along
+the flow path of water from the river through the aquifer. First, you will use
+the model to fit the given profiles of \ce{O2} and \ce{NH3} in order to obtain
+the rate constants of aerobic DOM degradation, nitrification and groundwater
+aeration.
+Then you will apply the model to predict how the quality of potentially drinking
+water extracted from a well in the aquifer depends on the concentrations of DOM,
+\ce{NO3} and \ce{NH3} in the river. Your ultimate question is: How does the
+coupling of processes of aerobic respiration, nitrification-denitrification
+and groundwater aeration determine water quality along an aquifer adjacent to a
+river contaminated with organics?
+
+\section{Methods}
+
+To determine the infiltration of nitrogen from a river into the groundwater,
+several chemical equations have to be identified. First of all, there is aerobic
+respiration of dissolved organic matter (DOM). For the purposes of this model DOM
+is simplified to \ce{(CH2O)106(NH3)16}, where the ratio between carbon and
+nitrogen is set to the Redfield ratio. Aerobic respiration can then be described
+by the following stoichiometric equation:
+\begin{equation}
+    \ce{(CH2O)106(NH3)16 + 106O2 -> 106CO2 + 106H2O + 16NH3}.\label{eq:stoi_aero}
+\end{equation}
+When oxygen is depleted, organic matter degradation is also possible through
+denitrification. Through this process nitrogen is lost from the system in gaseous
+form:
+\begin{equation}
+    \ce{5(CH2O)106(NH3)16 + 424NO3- + 424H+ -> 530CO2 + 742H2O + 80NH3 + 212N2}.\label{eq:stoi_denit}
+\end{equation}
+Both these processes lead to the formation of ammonium, which under oxic
+conditions can be transformed to nitrate in a process called nitrification:
+\begin{equation}
+    \ce{NH3 + 2O2 -> NO3- + H2O + H+}.\label{eq:stoi_nit}
+\end{equation}
+
+From these equations several species were identified as relevant for the
+model. First of all a primary goal of the model is to determine suitability of
+the groundwater for drinking water production. The regulations limit the
+concentrations of DOM, \ce{NO3}, and \ce{NH3}. Therefore, these parameters have
+to be modeled explicitly.
+Secondly oxygen is modeled for regulation of the processes, and nitrogen is
+modeled to track the final loss of nitrogen from the groundwater.
+
+On top of the chemical processes in the groundwater, also transport from the
+river into the aquifer is taken into account. To keep the model relatively
+simple
+
+\subsection{Assumptions}
+To simplify the problem the following points are assumed:
+\begin{itemize}
+    \item River and groundwater directly connected, no unsaturated zone in between
+    \item Only 1 dimensional transport along streamline
+    \item Once nitrogen degases it is permanently lost from the system
+    \item DOM is only removed through aerobic respiration and denitrification, other removal processes are ignored.
+\end{itemize}
+
+\subsection{Equations}
+
+\begin{align}
+    \pdv{[DOM]}{t} &= D\pdv[2]{[DOM]}{x} - u\pdv{[DOM]}{x} - R_{org.rem}\label{eq:diff_dom}\\
+    \pdv{[\ce{O2}]}{t} &= D\pdv[2]{[\ce{O2}]}{x} - u\pdv{[\ce{O2}]}{x} - R_{aero} - R_{nit} + R_{aeration}\label{eq:diff_O2}\\
+    \pdv{[\ce{NO3}]}{t} &= D\pdv[2]{[\ce{NO3}]}{x} - u\pdv{[\ce{NO3}]}{x} - R_{denit} + R_{nit}\label{eq:diff_NO3}\\
+    \pdv{[\ce{NH3}]}{t} &= D\pdv[2]{[\ce{NH3}]}{x} - u\pdv{[\ce{NH3}]}{x} + R_{org.rem} - R_{nit}\label{eq:diff_NH3}\\
+    \pdv{[\ce{N2}]}{t} &= D\pdv[2]{[\ce{N2}]}{x} - u\pdv{[\ce{N2}]}{x} + R_{denit} + R_{degas}\label{eq:diff_N2}
+\end{align}
+
+\begin{align}
+    R_{org.rem} &= k_1 [DOM] = R_{aero} + R_{denit}\label{eq:rate_org_rem}\\
+    R_{aero} &= R_{org.rem} \left(\frac{[\ce{O2}]}{k_{\ce{O2}} + [\ce{O2}]}\right)\label{eq:rate_aero}\\
+    R_{denit} &= R_{org.rem} \left(\frac{[\ce{NO3}]}{k_{\ce{NO3}} + [\ce{NO3}]}\right) \left(\frac{k_{\ce{O2}}}{k_{\ce{O2}} + [\ce{O2}]}\right)\label{eq:rate_denit}\\
+    R_{nit} &= k_2 [\ce{NH3}][\ce{O2}]\label{eq:rate_nit}\\
+    R_{aeration} &= k_3 \left(1 - \frac{[\ce{O2}]}{S_{\ce{O2}}}\right)\label{eq:rate_aeration}\\
+    R_{degas} &= k_3 \left(1 - \frac{[\ce{N2}]}{S_{\ce{N2}}}\right)\label{eq:rate_degas}
+\end{align}
+
+The following values are given as initial guesses for the fitting.
+\begin{align}
+    k_1 &\approx \SI{1e-3}{\per\hour}\\
+    k_2 &\approx \SI{5e-4}{\per\micro\mole\of{\ce{O2}}\per\liter\per\hour}\\
+    \frac{k_3}{S_{\ce{O2}}} &\approx \SI{5e-4}{\per\hour}
+\end{align}
+The value for \(k_3\) is given as a fraction because the notation of the rate law is
+different.
+
+From the given values \autoref{tab:parameters} we can calculate the dispersion
+coefficient:
+\begin{align}
+    D &\approx \alpha_L u\\
+        &= \SI{10}{\centi\meter\per\hour} \times \SI{1.5}{\meter}\\
+        &= \SI{0.15}{\square\meter\per\hour}\\
+\end{align}
+
+\begin{table}
+    \centering
+    \caption{\label{tab:parameters}Given parameters of the system}
+    \begin{tabular}{lSs}
+        \toprule
+        Parameter                           & {Value}   & {Unit}\\
+        \midrule
+        Velocity, \(u\)                     & 10        & \centi\meter\per\hour\\
+        Porosity, \(\phi\)                  & 0.4       & \cubic\meter\of{pw}\per\cubic\meter\\
+        Dispersivity, \(\alpha_L\)          & 1.5       & \meter\\
+        Affinity \ce{O2}, \(k_{\ce{O2}}\)   & 20        & \micro\mole\per\liter\\
+        Affinity \ce{NO3}, \(k_{\ce{NO3}}\) & 35        & \micro\mole\per\liter\\
+        Temperature, \(T\)                  & 10        & \celsius\\
+        Salinity, \(S\)                     & 0         &\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+\subsection{Boundary conditions}
+\begin{table}
+    \centering
+    \caption{\label{tab:boundary_conditions}Boundary conditions for the state variables}
+    \begin{tabular}{lll}
+        \toprule
+        Parameter   & Upper &   Lower\\
+        \midrule
+        DOM     & \([DOM] = \SI{6}{\milli\gram\of{C}\per\liter} = \SI{0.5}{\milli\mole\of{C}\per\liter} = \SI{4.71}{\micro\mole\of{DOM}\per\liter}\) & \(\pdv{[DOM]}{x} = 0\)\\
+        \ce{O2} & \([\ce{O2}] = \SI{210}{\micro\mole\of{O2}\per\liter}\) & \(\pdv{[\ce{O2}]}{x} = 0\)\\
+        \ce{NO3} & \([\ce{NO3}] = \SI{100}{\micro\mole\of{NO3}\per\liter}\) & \(\pdv{[\ce{NO3}]}{x} = 0\)\\
+        \ce{NH3} & \([\ce{NH3}] = \SI{0}{\micro\mole\of{NO3}\per\liter}\) & \(\pdv{[\ce{NH3}]}{x} = 0\)\\
+        \ce{N2} & \([\ce{N2}] = S_{\ce{N2}}\) & \(\pdv{[\ce{N2}]}{x} = 0\)\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Regulations}
+\begin{align}
+    DOM &< \SI{3}{\milli\gram\of{\ce{C}}\per\liter}\\
+    \ce{NO3} &< \SI{25}{\milli\gram\of{\ce{NO3}}\per\liter}\\
+    \ce{NH3} &< \SI{0.05}{\milli\gram\of{\ce{NH3}}\per\liter}
+\end{align}
+
+\section{Results}
+
+\section{Discussion}
+DOM infiltrates farther then expected because some removal processes are ignored.
+\(k_1\) is the potential maximum removal rate which is never reached
+
+
+\section{Conclusion}
+
+\printbibliography
+\end{document}

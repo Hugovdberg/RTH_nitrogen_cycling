@@ -1,0 +1,9 @@
+[0] Config.pm:354> INFO - This is Biber 2.7 (beta)
+[0] Config.pm:357> INFO - Logfile is 'nitrogen_cycling.blg'
+[30] biber:303> INFO - === za mrt 23, 2019, 12:36:12
+[47] Biber.pm:360> INFO - Reading 'nitrogen_cycling.bcf'
+[127] Biber.pm:836> INFO - Found 0 citekeys in bib section 0
+[137] Utils.pm:164> WARN - The file 'nitrogen_cycling.bcf' does not contain any citations!
+[145] bbl.pm:608> INFO - Writing 'nitrogen_cycling.bbl' with encoding 'UTF-8'
+[145] bbl.pm:712> INFO - Output to nitrogen_cycling.bbl
+[146] Biber.pm:110> INFO - WARNINGS: 1
